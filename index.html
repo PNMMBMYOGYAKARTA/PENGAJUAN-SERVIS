@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Pengajuan Servis MBM Yogyakarta</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- TOP HEADER -->
+  <header class="bg-gradient-to-r from-blue-900 to-indigo-800 text-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur-md">
+          <i data-lucide="wrench" class="w-6 h-6 text-blue-300"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight">MBM YOGYAKARTA</h1>
+          <p class="text-xs text-blue-200">System Dashboard Pengajuan & Servis Kendaraan</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAVIGATION TABS -->
+    <div class="max-w-7xl mx-auto px-4 mt-2 flex space-x-2 border-t border-white/10 pt-2">
+      <button onclick="switchTab('tab1')" id="btn-tab1" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg transition flex items-center gap-2 bg-white text-blue-900 font-semibold shadow">
+        <i data-lucide="file-plus" class="w-4 h-4"></i> 1. Form Pengajuan
+      </button>
+      <button onclick="switchTab('tab2')" id="btn-tab2" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg transition flex items-center gap-2 text-white/80 hover:bg-white/10">
+        <i data-lucide="wrench" class="w-4 h-4"></i> 2. Bengkel & Perbaikan
+      </button>
+      <button onclick="switchTab('tab3')" id="btn-tab3" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg transition flex items-center gap-2 text-white/80 hover:bg-white/10">
+        <i data-lucide="table" class="w-4 h-4"></i> 3. Monitoring & Rekap
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6">
+
+    <!-- ================= TAB 1: FORM PENGAJUAN ================= -->
+    <section id="tab1" class="tab-content block space-y-6">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 border-b pb-3">
+          <i data-lucide="file-text" class="text-blue-600"></i> Data Pengajuan Memo Utama
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="relative">
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Unit Mekaar</label>
+            <input type="text" id="t1_unitMekaar" autocomplete="off" oninput="onUnitSearch(this.value)" placeholder="Ketik Unit Mekaar..." class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            <div id="unitSuggestions" class="absolute left-0 right-0 top-full bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden z-20"></div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">No Memo (3 Digit, Misal: 001)</label>
+            <input type="text" id="t1_noMemo" placeholder="001" oninput="updateMemoPreview()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Format Memo Generated</label>
+            <input type="text" id="t1_memoPreview" readonly placeholder="M-001/PNM-MKR-KODE/IX/2026" class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-600 font-mono">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">No. FAO</label>
+            <input type="text" id="t1_noFao" placeholder="Masukkan No FAO..." class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Area</label>
+            <input type="text" id="t1_area" readonly placeholder="Otomatis dari Unit" class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-600">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tanggal</label>
+            <input type="date" id="t1_tanggal" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Kepala Unit Mekaar</label>
+            <input type="text" id="t1_kepalaUnit" placeholder="Nama Kepala Unit" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLE DATA MOTOR (KDO) -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-3">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <i data-lucide="bike" class="text-blue-600"></i> Data Motor Kendaraan Dinas Operasional (KDO)
+            </h2>
+            <p class="text-xs text-slate-500">Tambahkan satu atau lebih kendaraan dalam pengajuan ini.</p>
+          </div>
+          <button onclick="addKdoCard()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 transition shadow-sm">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i> ADD KDO
+          </button>
+        </div>
+
+        <div id="kdoContainer" class="space-y-6"></div>
+
+        <div class="pt-4 flex justify-end">
+          <button onclick="submitTab1()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl flex items-center gap-2 transition shadow-md">
+            <i data-lucide="send" class="w-5 h-5"></i> SIMPAN & KIRIM PENGAJUAN
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 2: BENGKEL & PERBAIKAN ================= -->
+    <section id="tab2" class="tab-content hidden space-y-6">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+        <div class="flex justify-between items-center border-b pb-3">
+          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <i data-lucide="list-todo" class="text-blue-600"></i> Table List Memo Pengajuan
+          </h2>
+          <button onclick="loadListMemoTab2()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg font-medium flex items-center gap-1">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh List
+          </button>
+        </div>
+
+        <div class="overflow-x-auto max-h-60 overflow-y-auto">
+          <table class="w-full text-left text-xs text-slate-600 border">
+            <thead class="bg-slate-100 text-slate-700 font-semibold uppercase sticky top-0">
+              <tr>
+                <th class="p-2.5 border">No Memo</th>
+                <th class="p-2.5 border">Unit Mekaar</th>
+                <th class="p-2.5 border">No. FAO</th>
+                <th class="p-2.5 border">Kepala Unit</th>
+                <th class="p-2.5 border">Jumlah Motor</th>
+                <th class="p-2.5 border text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="t2_memoListBody" class="divide-y divide-slate-100">
+              <tr><td colspan="6" class="p-4 text-center text-slate-400">Memuat data list memo...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 border-b pb-3">
+          <i data-lucide="search" class="text-blue-600"></i> Cari & Tarik Data Pengajuan Memo Manual
+        </h2>
+        <div class="flex gap-3 max-w-lg">
+          <input type="text" id="t2_searchMemo" placeholder="Masukkan No. Memo (Contoh: M-001/PNM-MKR...)" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          <button onclick="loadBengkelData()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition whitespace-nowrap">
+            <i data-lucide="search" class="w-4 h-4"></i> Cari Data
+          </button>
+        </div>
+      </div>
+
+      <div id="bengkelContent" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+        <div class="flex justify-between items-center border-b pb-3">
+          <h3 class="font-bold text-slate-800 text-base" id="bengkelTitle">Rincian Motor Pengajuan</h3>
+          <span class="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium" id="bengkelMemoBadge"></span>
+        </div>
+
+        <div id="bengkelTableContainer" class="overflow-x-auto"></div>
+
+        <div class="pt-4 flex justify-end">
+          <button onclick="saveBengkelInput()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl flex items-center gap-2 transition shadow-md">
+            <i data-lucide="file-check" class="w-5 h-5"></i> SIMPAN & GENERATE PDF
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 3: TABLE PENGAJUAN ================= -->
+    <section id="tab3" class="tab-content hidden space-y-6">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+        <h2 class="text-lg font-bold text-slate-800 border-b pb-3 flex items-center gap-2">
+          <i data-lucide="filter" class="text-blue-600"></i> Filter & Ringkasan Data
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Cari No Memo / Unit</label>
+            <input type="text" id="t3_filterSearch" oninput="applyTableFilter()" placeholder="Filter Memo..." class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Filter Validasi</label>
+            <select id="t3_filterValidasi" onchange="applyTableFilter()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+              <option value="">Semua Status</option>
+              <option value="PROSES">PROSES</option>
+              <option value="EKSEKUSI">EKSEKUSI</option>
+              <option value="DONE">DONE</option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <button onclick="loadTablePengajuan()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-2 px-4 rounded-lg text-sm transition flex items-center justify-center gap-2">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh Data
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+          <h3 class="font-bold text-slate-800">Daftar Pengajuan Servis Terkini</h3>
+          <span class="text-xs text-slate-500" id="tableCountInfo">0 Data Ditemukan</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-slate-600">
+            <thead class="bg-slate-100 text-slate-700 font-semibold uppercase text-xs">
+              <tr>
+                <th class="p-4">Tanggal</th>
+                <th class="p-4">Unit</th>
+                <th class="p-4">No. Memo</th>
+                <th class="p-4">Output PDF</th>
+                <th class="p-4">WA Web Direct</th>
+                <th class="p-4">Log Status WA</th>
+                <th class="p-4">Validasi</th>
+              </tr>
+            </thead>
+            <tbody id="t3_tableBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL MEDIA PREVIEW -->
+  <div id="mediaModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-2xl max-w-3xl w-full p-4 overflow-hidden shadow-2xl relative">
+      <button onclick="closeModal()" class="absolute top-3 right-3 text-slate-400 hover:text-slate-600 bg-slate-100 rounded-full p-1">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div id="modalContent" class="mt-4 flex justify-center items-center min-h-[300px]"></div>
+    </div>
+  </div>
+
+  <!-- LOADING OVERLAY -->
+  <div id="loadingOverlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+    <div class="bg-white px-6 py-4 rounded-xl shadow-xl flex items-center space-x-3">
+      <div class="w-6 h-6 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <span class="text-sm font-semibold text-slate-700" id="loadingText">Memproses data...</span>
+    </div>
+  </div>
+
+  <script>
+    const HARDCODED_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxIy7p1hexLYXFjNkuahvp4MvuT6QEJ4xX7FeBt2FGZnOS8-cnIJaVIe1DVp6iemdGn/exec";
+    
+    let SCRIPT_URL = HARDCODED_SCRIPT_URL;
+    localStorage.setItem('MBM_SCRIPT_URL', HARDCODED_SCRIPT_URL);
+
+    let operatorList = [];
+    let nopolList = [];
+    let kdoCount = 0;
+    let selectedKodeUnit = '';
+    let tableRawData = [];
+    const fileStore = {};
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      addKdoCard();
+      document.getElementById('t1_tanggal').valueAsDate = new Date();
+      
+      if (SCRIPT_URL) {
+        fetchInitialData();
+      }
+
+      document.addEventListener('click', (e) => {
+        const sug = document.getElementById('unitSuggestions');
+        const input = document.getElementById('t1_unitMekaar');
+        if (sug && !sug.contains(e.target) && e.target !== input) {
+          sug.classList.add('hidden');
+        }
+      });
+    });
+
+    async function apiCall(action, payload = {}) {
+      if (!SCRIPT_URL) {
+        alert('URL Google Apps Script belum terkonfigurasi!');
+        throw new Error('Script URL is empty');
+      }
+
+      showLoading(true);
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action, ...payload })
+        });
+        const json = await response.json();
+        showLoading(false);
+        return json;
+      } catch (err) {
+        showLoading(false);
+        alert('Gagal berkomunikasi dengan server: ' + err.message);
+        throw err;
+      }
+    }
+
+    function showLoading(show, text = 'Memproses data...') {
+      document.getElementById('loadingText').innerText = text;
+      document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(el => {
+        el.classList.remove('bg-white', 'text-blue-900', 'font-semibold', 'shadow');
+        el.classList.add('text-white/80');
+      });
+
+      document.getElementById(tabId).classList.remove('hidden');
+      const activeBtn = document.getElementById('btn-' + tabId);
+      activeBtn.classList.add('bg-white', 'text-blue-900', 'font-semibold', 'shadow');
+      activeBtn.classList.remove('text-white/80');
+
+      if (tabId === 'tab2') {
+        loadListMemoTab2();
+      } else if (tabId === 'tab3') {
+        loadTablePengajuan();
+      }
+    }
+
+    // ---------------- TAB 1 LOGIC ----------------
+    async function fetchInitialData() {
+      const res = await apiCall('getInitialData');
+      if (res.success) {
+        operatorList = res.operators || [];
+        nopolList = res.nopols || [];
+      }
+    }
+
+    function onUnitSearch(val) {
+      const sugContainer = document.getElementById('unitSuggestions');
+      if (!val.trim()) {
+        sugContainer.classList.add('hidden');
+        return;
+      }
+
+      const filtered = operatorList.filter(o => o.unit.toLowerCase().includes(val.toLowerCase()));
+      if (filtered.length === 0) {
+        sugContainer.classList.add('hidden');
+        return;
+      }
+
+      sugContainer.innerHTML = filtered.map(o => `
+        <div onclick="selectUnit('${o.unit}', '${o.kode}', '${o.area}')" class="p-2.5 hover:bg-slate-100 cursor-pointer border-b border-slate-100 text-xs">
+          <div class="font-bold text-slate-800">${o.unit}</div>
+          <div class="text-slate-500">Kode: ${o.kode} | Area: ${o.area}</div>
+        </div>
+      `).join('');
+      sugContainer.classList.remove('hidden');
+    }
+
+    function selectUnit(unit, kode, area) {
+      document.getElementById('t1_unitMekaar').value = unit;
+      document.getElementById('t1_area').value = area;
+      selectedKodeUnit = kode;
+      document.getElementById('unitSuggestions').classList.add('hidden');
+      updateMemoPreview();
+    }
+
+    function updateMemoPreview() {
+      const noMemo = document.getElementById('t1_noMemo').value.trim() || '001';
+      const now = new Date();
+      const romanMonths = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+      const monthRoman = romanMonths[now.getMonth()];
+      const year = now.getFullYear();
+      const kode = selectedKodeUnit || 'KODE';
+
+      document.getElementById('t1_memoPreview').value = `M-${noMemo}/PNM-MKR-${kode}/${monthRoman}/${year}`;
+    }
+
+    function addKdoCard() {
+      kdoCount++;
+      const id = kdoCount;
+      const html = `
+        <div id="kdo_card_${id}" class="bg-slate-50 rounded-xl p-4 border border-slate-200 relative space-y-4">
+          <div class="flex justify-between items-center border-b pb-2">
+            <span class="text-xs font-bold bg-blue-600 text-white px-2.5 py-1 rounded-lg">KDO #${id}</span>
+            <button onclick="removeKdoCard(${id})" class="text-red-500 hover:text-red-700 text-xs font-semibold flex items-center gap-1">
+              <i data-lucide="trash-2" class="w-4 h-4"></i> Hapus
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Pengguna</label>
+              <input type="text" class="kdo-pengguna w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:ring-1 focus:ring-blue-500">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">No. HP Pengguna</label>
+              <input type="text" class="kdo-nohp w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:ring-1 focus:ring-blue-500" placeholder="628123456789">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">KM Saat Laka</label>
+              <input type="number" class="kdo-km w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:ring-1 focus:ring-blue-500">
+            </div>
+
+            <div class="relative">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">No. Polisi (NOPOL)</label>
+              <div class="flex gap-1">
+                <input type="text" id="kdo_nopol_${id}" class="kdo-nopol w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs outline-none uppercase font-semibold" placeholder="AB 1234 XX">
+                <button onclick="lookupNopol(${id})" class="bg-blue-600 hover:bg-blue-700 text-white px-2 rounded-lg text-xs"><i data-lucide="search" class="w-3 h-3"></i></button>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Tahun STNK (-3 Thn)</label>
+              <input type="text" id="kdo_tahun_${id}" readonly class="kdo-tahun bg-slate-200 w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-600 font-medium">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Type</label>
+              <input type="text" id="kdo_type_${id}" readonly class="kdo-type bg-slate-200 w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-600 font-medium">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">No. Rangka</label>
+              <input type="text" id="kdo_rangka_${id}" readonly class="kdo-rangka bg-slate-200 w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-600 font-medium">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">No. Mesin</label>
+              <input type="text" id="kdo_mesin_${id}" readonly class="kdo-mesin bg-slate-200 w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-600 font-medium">
+            </div>
+          </div>
+
+          <div class="border-t pt-3">
+            <label class="block text-xs font-bold text-slate-700 mb-2">Upload Lampiran Media</label>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+              ${renderFileInput(id, 'stnk', 'Foto STNK', 'image/*')}
+              ${renderFileInput(id, 'foto1', 'Foto 1', 'image/*')}
+              ${renderFileInput(id, 'foto2', 'Foto 2', 'image/*')}
+              ${renderFileInput(id, 'foto3', 'Foto 3', 'image/*')}
+              ${renderFileInput(id, 'foto4', 'Foto 4', 'image/*')}
+              ${renderFileInput(id, 'video', 'Video', 'video/*')}
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('kdoContainer').insertAdjacentHTML('beforeend', html);
+      lucide.createIcons();
+    }
+
+    function renderFileInput(kdoId, key, label, accept) {
+      return `
+        <div class="bg-white border rounded-lg p-2 text-center space-y-1">
+          <span class="block text-[10px] font-semibold text-slate-500">${label}</span>
+          <input type="file" id="file_${key}_${kdoId}" accept="${accept}" onchange="handleFilePreview(this, '${key}_${kdoId}')" class="hidden">
+          <label for="file_${key}_${kdoId}" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 block py-1.5 px-2 rounded text-[11px] font-medium border border-dashed border-slate-300">
+            Pilih File
+          </label>
+          <div id="prev_${key}_${kdoId}" class="h-16 w-full bg-slate-50 rounded border flex items-center justify-center overflow-hidden">
+            <span class="text-[9px] text-slate-400">Kosong</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function removeKdoCard(id) {
+      const card = document.getElementById(`kdo_card_${id}`);
+      if (card) card.remove();
+    }
+
+    async function lookupNopol(id) {
+      const nopol = document.getElementById(`kdo_nopol_${id}`).value.trim();
+      if (!nopol) return alert('Masukkan Nopol!');
+
+      const res = await apiCall('searchNopol', { nopol });
+      if (res.success) {
+        document.getElementById(`kdo_tahun_${id}`).value = res.data.tahunStnk;
+        document.getElementById(`kdo_type_${id}`).value = res.data.type;
+        document.getElementById(`kdo_rangka_${id}`).value = res.data.noRangka;
+        document.getElementById(`kdo_mesin_${id}`).value = res.data.noMesin;
+      } else {
+        alert(res.message || 'Nopol tidak ditemukan!');
+      }
+    }
+
+    function handleFilePreview(input, key) {
+      const file = input.files[0];
+      if (!file) return;
+
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            const maxDim = 1200;
+
+            if (width > maxDim || height > maxDim) {
+              if (width > height) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              } else {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+            fileStore[key] = compressedBase64;
+
+            const prevBox = document.getElementById(`prev_${key}`);
+            prevBox.innerHTML = `<img src="${compressedBase64}" onclick="openImageModal('${compressedBase64}')" class="h-full w-full object-cover cursor-pointer hover:opacity-80">`;
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          fileStore[key] = e.target.result;
+          const prevBox = document.getElementById(`prev_${key}`);
+          prevBox.innerHTML = `<div onclick="openVideoModal('${e.target.result}')" class="cursor-pointer text-blue-600 font-bold text-[10px] flex flex-col items-center"><i data-lucide="video" class="w-5 h-5"></i>Preview Video</div>`;
+          lucide.createIcons();
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function openImageModal(src) {
+      document.getElementById('modalContent').innerHTML = `<img src="${src}" class="max-h-[80vh] max-w-full rounded-lg shadow">`;
+      document.getElementById('mediaModal').classList.remove('hidden');
+    }
+
+    function openVideoModal(src) {
+      document.getElementById('modalContent').innerHTML = `<video src="${src}" controls class="max-h-[80vh] max-w-full rounded-lg shadow"></video>`;
+      document.getElementById('mediaModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('mediaModal').classList.add('hidden');
+      document.getElementById('modalContent').innerHTML = '';
+    }
+
+    async function submitTab1() {
+      const unitMekaar = document.getElementById('t1_unitMekaar').value.trim();
+      const noMemo = document.getElementById('t1_noMemo').value.trim();
+      const noFao = document.getElementById('t1_noFao').value.trim();
+      const area = document.getElementById('t1_area').value.trim();
+      const tanggal = document.getElementById('t1_tanggal').value;
+      const kepalaUnit = document.getElementById('t1_kepalaUnit').value.trim();
+
+      if (!unitMekaar || !noMemo || !kepalaUnit) {
+        return alert('Mohon lengkapi Data Pengajuan Memo Utama!');
+      }
+
+      const kdoCards = document.querySelectorAll('[id^="kdo_card_"]');
+      if (kdoCards.length === 0) return alert('Tambahkan minimal 1 Data Motor KDO!');
+
+      const kdoList = [];
+      for (const card of kdoCards) {
+        const id = card.id.replace('kdo_card_', '');
+        kdoList.push({
+          pengguna: card.querySelector('.kdo-pengguna').value.trim(),
+          noHp: card.querySelector('.kdo-nohp').value.trim(),
+          km: card.querySelector('.kdo-km').value.trim(),
+          nopol: card.querySelector('.kdo-nopol').value.trim(),
+          tahunStnk: document.getElementById(`kdo_tahun_${id}`).value,
+          type: document.getElementById(`kdo_type_${id}`).value,
+          noRangka: document.getElementById(`kdo_rangka_${id}`).value,
+          noMesin: document.getElementById(`kdo_mesin_${id}`).value,
+          fotoStnk: fileStore[`stnk_${id}`] || '',
+          foto1: fileStore[`foto1_${id}`] || '',
+          foto2: fileStore[`foto2_${id}`] || '',
+          foto3: fileStore[`foto3_${id}`] || '',
+          foto4: fileStore[`foto4_${id}`] || '',
+          video: fileStore[`video_${id}`] || ''
+        });
+      }
+
+      const payload = {
+        unitMekaar,
+        noMemo,
+        noFao,
+        kodeUnit: selectedKodeUnit,
+        area,
+        tanggal,
+        kepalaUnit,
+        kdoList
+      };
+
+      const res = await apiCall('submitPengajuan', { payload });
+      if (res.success) {
+        alert('Pengajuan Servis Berhasil Disimpan dengan No Memo: ' + res.memo);
+        location.reload();
+      } else {
+        alert('Gagal: ' + (res.error || res.message));
+      }
+    }
+
+    // ---------------- TAB 2 LOGIC ----------------
+    async function loadListMemoTab2() {
+      const res = await apiCall('getDaftarMemoTab2');
+      const tbody = document.getElementById('t2_memoListBody');
+
+      if (res.success && res.data && res.data.length > 0) {
+        tbody.innerHTML = res.data.map(item => `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-2.5 border font-mono font-bold text-blue-700">${item.noMemo}</td>
+            <td class="p-2.5 border font-medium">${item.unit}</td>
+            <td class="p-2.5 border text-slate-600">${item.noFao}</td>
+            <td class="p-2.5 border text-slate-600">${item.kepalaUnit}</td>
+            <td class="p-2.5 border text-center font-bold text-slate-700">${item.totalMotor} Unit</td>
+            <td class="p-2.5 border text-center">
+              <button onclick="selectMemoFromList('${item.noMemo}')" class="bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-semibold px-3 py-1 rounded-lg transition shadow-sm flex items-center gap-1 mx-auto">
+                <i data-lucide="edit-3" class="w-3 h-3"></i> Pilih / Kerjakan
+              </button>
+            </td>
+          </tr>
+        `).join('');
+        lucide.createIcons();
+      } else {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">Belum ada pengajuan memo.</td></tr>`;
+      }
+    }
+
+    function selectMemoFromList(noMemo) {
+      document.getElementById('t2_searchMemo').value = noMemo;
+      loadBengkelData();
+    }
+
+    async function loadBengkelData() {
+      const noMemo = document.getElementById('t2_searchMemo').value.trim();
+      if (!noMemo) return alert('Masukkan No Memo!');
+
+      const res = await apiCall('getBengkelData', { noMemo });
+      if (res.success && res.data && res.data.length > 0) {
+        renderBengkelTable(res.data);
+        document.getElementById('bengkelTitle').innerText = `Rincian Memo: ${res.data[0].noMemo}`;
+        document.getElementById('bengkelMemoBadge').innerText = res.data[0].unit;
+        document.getElementById('bengkelContent').classList.remove('hidden');
+      } else {
+        alert('Data Memo tidak ditemukan!');
+      }
+    }
+
+    function renderBengkelTable(data) {
+      const html = `
+        <table class="w-full text-left text-xs text-slate-600 border">
+          <thead class="bg-slate-100 text-slate-700 font-semibold uppercase">
+            <tr>
+              <th class="p-2 border">Pengguna & WA</th>
+              <th class="p-2 border">Nopol & Type</th>
+              <th class="p-2 border">No Rangka / Mesin</th>
+              <th class="p-2 border">Media Lampiran</th>
+              <th class="p-2 border w-48">Uraian Perbaikan</th>
+              <th class="p-2 border w-48">Item Perbaikan</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map(item => {
+              let cleanHp = String(item.noHp || '').replace(/\D/g, '');
+              if (cleanHp.startsWith('0')) cleanHp = '62' + cleanHp.substring(1);
+              const waMsg = encodeURIComponent(`Halo Kak ${item.pengguna}, terkait pengajuan servis motor Nopol ${item.nopol} (${item.type}), bagaimana keadaan kendaraan saat ini?`);
+              const waLink = cleanHp ? `https://api.whatsapp.com/send?phone=${cleanHp}&text=${waMsg}` : '#';
+
+              return `
+                <tr data-rowindex="${item.rowIndex}">
+                  <td class="p-2 border font-medium">
+                    <div>${item.pengguna}</div>${cleanHp ? `
+                      <a href="${waLink}" target="_blank" class="inline-flex items-center gap-1 text-emerald-600 hover:underline font-bold mt-1">
+                        <i data-lucide="message-square" class="w-3 h-3"></i> Chat Pengguna
+                      </a>
+                    ` : '<span class="text-xs text-slate-400">Tidak ada WA</span>'}
+                  </td>
+                  <td class="p-2 border">
+                    <div class="font-bold text-slate-800">${item.nopol}</div>
+                    <div class="text-slate-500">${item.type}</div>
+                  </td>
+                  <td class="p-2 border font-mono text-[10px]">
+                    <div>R: ${item.noRangka}</div>
+                    <div>M: ${item.noMesin}</div>
+                  </td>
+                  <td class="p-2 border">
+                    <div class="flex gap-1 flex-wrap">
+                      ${item.fotoStnk ? `<a href="${item.fotoStnk}" target="_blank" class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-[10px] font-semibold border border-amber-200">STNK</a>` : ''}
+                      ${item.foto1 ? `<a href="${item.foto1}" target="_blank" class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[10px] font-semibold border border-blue-200">F1</a>` : ''}
+                      ${item.foto2 ? `<a href="${item.foto2}" target="_blank" class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[10px] font-semibold border border-blue-200">F2</a>` : ''}
+                      ${item.foto3 ? `<a href="${item.foto3}" target="_blank" class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[10px] font-semibold border border-blue-200">F3</a>` : ''}
+                      ${item.foto4 ? `<a href="${item.foto4}" target="_blank" class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[10px] font-semibold border border-blue-200">F4</a>` : ''}
+                      ${item.video ? `<a href="${item.video}" target="_blank" class="bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded text-[10px] font-semibold border border-purple-200">Vid</a>` : ''}
+                    </div>
+                  </td>
+                  <td class="p-2 border">
+                    <textarea class="bengkel-uraian w-full border rounded p-1 text-xs" rows="2" placeholder="Uraian...">${item.uraian || ''}</textarea>
+                  </td>
+                  <td class="p-2 border">
+                    <textarea class="bengkel-item w-full border rounded p-1 text-xs" rows="2" placeholder="Item...">${item.item || ''}</textarea>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      `;
+
+      document.getElementById('bengkelTableContainer').innerHTML = html;
+      lucide.createIcons();
+    }
+
+    async function saveBengkelInput() {
+      const rows = document.querySelectorAll('#bengkelTableContainer tbody tr');
+      const items = [];
+      rows.forEach(tr => {
+        items.push({
+          rowIndex: parseInt(tr.dataset.rowindex),
+          uraian: tr.querySelector('.bengkel-uraian').value.trim(),
+          item: tr.querySelector('.bengkel-item').value.trim()
+        });
+      });
+
+      const noMemo = document.getElementById('t2_searchMemo').value.trim();
+      const res = await apiCall('saveBengkelInput', { payload: { noMemo, items } });
+
+      if (res.success) {
+        alert('Data Berhasil Disimpan & Template PDF Generated!');
+        if (res.pdfUrl) {
+          window.open(res.pdfUrl, '_blank');
+        }
+      } else {
+        alert('Gagal: ' + (res.error || res.message));
+      }
+    }
+
+    // ---------------- TAB 3 LOGIC ----------------
+    async function loadTablePengajuan() {
+      const res = await apiCall('getTablePengajuan');
+      if (res.success) {
+        tableRawData = res.data || [];
+        applyTableFilter();
+      }
+    }
+
+    function applyTableFilter() {
+      const search = document.getElementById('t3_filterSearch').value.toLowerCase().trim();
+      const validasi = document.getElementById('t3_filterValidasi').value;
+
+      const filtered = tableRawData.filter(item => {
+        const matchSearch = item.noMemo.toLowerCase().includes(search) || item.unit.toLowerCase().includes(search);
+        const matchValidasi = !validasi || item.validasi === validasi;
+        return matchSearch && matchValidasi;
+      });
+
+      renderTablePengajuan(filtered);
+    }
+
+    function renderTablePengajuan(list) {
+      document.getElementById('tableCountInfo').innerText = `${list.length} Data Ditemukan`;
+      const tbody = document.getElementById('t3_tableBody');
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">Tidak ada data pengajuan.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(item => {
+        const waWebUrl = item.waWebLink || '#';
+
+        return `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-4 whitespace-nowrap font-medium text-slate-800">${item.tanggal}</td>
+            <td class="p-4">${item.unit}</td>
+            <td class="p-4 font-mono font-bold text-blue-700">${item.noMemo}</td>
+            <td class="p-4">
+              ${item.pdfUrl ? `
+                <a href="${item.pdfUrl}" target="_blank" class="inline-flex items-center gap-1 text-xs bg-red-100 text-red-700 hover:bg-red-200 font-semibold px-2.5 py-1 rounded-lg">
+                  <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Download PDF
+                </a>
+              ` : `<span class="text-xs text-slate-400">Belum Ada</span>`}
+            </td>
+            <td class="p-4">
+              ${waWebUrl !== '#' ? `
+                <a href="${waWebUrl}" target="_blank" onclick="updateLogWa('${item.noMemo}')" class="inline-flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 hover:bg-emerald-200 font-semibold px-2.5 py-1 rounded-lg">
+                  <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Chat Room Direct
+                </a>
+              ` : `<span class="text-xs text-slate-400">Tidak Ada Link WA</span>`}
+            </td>
+            <td class="p-4">
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold ${item.logWa === 'Sudah Dikirim' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}">
+                ${item.logWa}
+              </span>
+            </td>
+            <td class="p-4">
+              <select onchange="changeValidasi('${item.noMemo}', this.value)" class="border rounded-lg px-2 py-1 text-xs font-bold outline-none ${getValidasiBadgeClass(item.validasi)}">
+                <option value="PROSES" ${item.validasi === 'PROSES' ? 'selected' : ''}>PROSES</option>
+                <option value="EKSEKUSI" ${item.validasi === 'EKSEKUSI' ? 'selected' : ''}>EKSEKUSI</option>
+                <option value="DONE" ${item.validasi === 'DONE' ? 'selected' : ''}>DONE</option>
+              </select>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function getValidasiBadgeClass(val) {
+      if (val === 'PROSES') return 'bg-amber-100 text-amber-800 border-amber-300';
+      if (val === 'EKSEKUSI') return 'bg-blue-100 text-blue-800 border-blue-300';
+      if (val === 'DONE') return 'bg-emerald-100 text-emerald-800 border-emerald-300';
+      return 'bg-slate-100 text-slate-800';
+    }
+
+    async function updateLogWa(noMemo) {
+      await apiCall('updateStatusWa', { noMemo, status: 'Sudah Dikirim' });
+      loadTablePengajuan();
+    }
+
+    async function changeValidasi(noMemo, validasi) {
+      await apiCall('updateValidasi', { noMemo, validasi });
+      loadTablePengajuan();
+    }
+  </script>
+</body>
+</html>

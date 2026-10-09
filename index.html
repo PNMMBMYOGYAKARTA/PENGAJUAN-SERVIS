@@ -217,6 +217,7 @@
                 <th class="p-4">WA Web Direct</th>
                 <th class="p-4">Log Status WA</th>
                 <th class="p-4">Validasi</th>
+                <th class="p-4 text-center">Bukti Servis</th>
               </tr>
             </thead>
             <tbody id="t3_tableBody" class="divide-y divide-slate-100"></tbody>
@@ -765,11 +766,11 @@
       const tbody = document.getElementById('t3_tableBody');
 
       if (list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">Tidak ada data pengajuan.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400">Tidak ada data pengajuan.</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = list.map(item => {
+      tbody.innerHTML = list.map((item, idx) => {
         const waWebUrl = item.waWebLink || '#';
 
         return `
@@ -803,6 +804,23 @@
                 <option value="DONE" ${item.validasi === 'DONE' ? 'selected' : ''}>DONE</option>
               </select>
             </td>
+            <td class="p-4 text-center">
+              <input type="file" id="upload_bukti_${idx}" accept="image/*" class="hidden" onchange="handleBuktiServisUpload(this, '${encodeURIComponent(item.noMemo)}')">
+              ${item.buktiServis ? `
+                <div class="flex items-center justify-center gap-1">
+                  <a href="${item.buktiServis}" target="_blank" class="inline-flex items-center gap-1 text-xs bg-purple-100 text-purple-700 hover:bg-purple-200 font-semibold px-2.5 py-1 rounded-lg">
+                    <i data-lucide="image" class="w-3.5 h-3.5"></i> Lihat Bukti
+                  </a>
+                  <button onclick="document.getElementById('upload_bukti_${idx}').click()" class="p-1 text-slate-500 hover:text-blue-600 rounded-lg hover:bg-slate-100" title="Ganti Foto">
+                    <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              ` : `
+                <button onclick="document.getElementById('upload_bukti_${idx}').click()" class="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 font-semibold px-2.5 py-1 rounded-lg transition">
+                  <i data-lucide="upload" class="w-3.5 h-3.5"></i> Upload Foto
+                </button>
+              `}
+            </td>
           </tr>
         `;
       }).join('');
@@ -825,6 +843,52 @@
     async function changeValidasi(noMemo, validasi) {
       await apiCall('updateValidasi', { noMemo, validasi });
       loadTablePengajuan();
+    }
+
+    // FUNGSI UNTUK PROSES UPLOAD FOTO BUKTI SERVIS
+    async function handleBuktiServisUpload(input, encodedNoMemo) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const noMemo = decodeURIComponent(encodedNoMemo);
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const img = new Image();
+        img.onload = async function() {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 1200;
+
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
+          const res = await apiCall('uploadBuktiServis', { noMemo: noMemo, fileData: compressedBase64 });
+          if (res.success) {
+            alert('Foto Bukti Servis berhasil diunggah!');
+            loadTablePengajuan();
+          } else {
+            alert('Gagal mengunggah foto: ' + (res.error || res.message));
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
     }
   </script>
 </body>
